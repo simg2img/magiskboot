@@ -11,6 +11,7 @@ jobs:
       with:
         repository: topjohnwu/Magisk
         ref: master
+        submodules: true
     - uses: actions/setup-python@v5
       with:
         python-version: '3.12'
@@ -19,17 +20,17 @@ jobs:
     - run: python build.py native
     - uses: actions/upload-artifact@v4
       with:
-        name: magiskboot-linux-armeabi-v7a
+        name: magiskboot-armeabi-v7a
         path: out/native/armeabi-v7a/magiskboot
     - uses: actions/upload-artifact@v4
       with:
-        name: magiskboot-linux-arm64-v8a
+        name: magiskboot-arm64-v8a
         path: out/native/arm64-v8a/magiskboot
     - uses: actions/upload-artifact@v4
       with:
-        name: magiskboot-linux-x86
+        name: magiskboot-x86
         path: out/native/x86/magiskboot
     - uses: actions/upload-artifact@v4
       with:
-        name: magiskboot-linux-x86_64
+        name: magiskboot-x86_64
         path: out/native/x86_64/magiskboot
