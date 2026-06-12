@@ -1,4 +1,4 @@
-name: Build magiskboot for Linux (all architectures)
+name: Build magiskboot
 
 on:
   push:
@@ -20,9 +20,8 @@ jobs:
       with:
         python-version: '3.11'
 
-    - name: Install dependencies
+    - name: Install deps
       run: |
-        pip install -r requirements.txt
         sudo apt-get update
         sudo apt-get install -y ninja-build
 
@@ -31,13 +30,13 @@ jobs:
         ndk-version: r26d
         link-to-sdk: true
 
-    - name: Build magiskboot for ${{ matrix.arch }}
+    - name: Build ${{ matrix.arch }}
       run: |
         export ANDROID_NDK_HOME=$ANDROID_HOME/ndk-bundle
         python build.py -r magiskboot -t ${{ matrix.arch }}
 
-    - name: Upload ${{ matrix.arch }}
+    - name: Upload
       uses: actions/upload-artifact@v4
       with:
         name: magiskboot-linux-${{ matrix.arch }}
-        path: out/magiskboot-${{ matrix.arch }}
+        path: out/magiskboot
