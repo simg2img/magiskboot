@@ -1,46 +1,40 @@
-name: Build magiskboot (Latest Linux)
+name: Build magiskboot
 
 on:
-  workflow_dispatch:
+  push:
 
 jobs:
   build:
-    runs-on: ubuntu-24.04
-    strategy:
-      matrix:
-        arch: [x86_64, arm64-v8a, x86, armeabi-v7a]
-
+    runs-on: ubuntu-latest
     steps:
-    - name: Checkout source
-      uses: actions/checkout@v4
+    - uses: actions/checkout@v4
       with:
         repository: topjohnwu/Magisk
         ref: master
-
-    - name: Setup Python
-      uses: actions/setup-python@v5
+    - uses: actions/setup-python@v5
       with:
         python-version: '3.12'
-
-    - name: Install dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y ninja-build
-
-    - name: Setup NDK
-      uses: nttld/setup-ndk@v1
-      id: setup-ndk
+    - run: sudo apt-get update && sudo apt-get install -y ninja-build
+    - uses: nttld/setup-ndk@v1
+      id: ndk
       with:
         ndk-version: r26d
-        add-to-path: false
-
-    - name: Build magiskboot for ${{ matrix.arch }}
-      run: |
-        export ANDROID_NDK_HOME=${{ steps.setup-ndk.outputs.ndk-path }}
-        python build.py -r magiskboot -t ${{ matrix.arch }}
-
-    - name: Upload artifact
-      uses: actions/upload-artifact@v4
+    - run: |
+        export ANDROID_NDK_HOME=${{ steps.ndk.outputs.ndk-path }}
+        python build.py native
+    - uses: actions/upload-artifact@v4
       with:
-        name: magiskboot-linux-${{ matrix.arch }}
-        path: out/magiskboot
+        name: magiskboot-linux-armeabi-v7a
+        path: out/native/armeabi-v7a/magiskboot
+    - uses: actions/upload-artifact@v4
+      with:
+        name: magiskboot-linux-arm64-v8a
+        path: out/native/arm64-v8a/magiskboot
+    - uses: actions/upload-artifact@v4
+      with:
+        name: magiskboot-linux-x86
+        path: out/native/x86/magiskboot
+    - uses: actions/upload-artifact@v4
+      with:
+        name: magiskboot-linux-x86_64
+        path: out/native/x86_64/magiskboot
