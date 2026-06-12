@@ -1,41 +1,45 @@
-name: Build magiskboot
+name: Build magiskboot (Latest Linux)
 
 on:
-  push:
-    branches: [ main, master ]
   workflow_dispatch:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     strategy:
       matrix:
-        arch: [armeabi-v7a, arm64-v8a, x86, x86_64]
+        arch: [x86_64, arm64-v8a, x86, armeabi-v7a]
+
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout source
+      uses: actions/checkout@v4
       with:
         repository: topjohnwu/Magisk
+        ref: master
 
-    - uses: actions/setup-python@v5
+    - name: Setup Python
+      uses: actions/setup-python@v5
       with:
-        python-version: '3.11'
+        python-version: '3.12'
 
-    - name: Install deps
+    - name: Install dependencies
       run: |
         sudo apt-get update
         sudo apt-get install -y ninja-build
 
-    - uses: nttld/setup-ndk@v1
+    - name: Setup NDK
+      uses: nttld/setup-ndk@v1
+      id: setup-ndk
       with:
         ndk-version: r26d
-        link-to-sdk: true
+        add-to-path: false
 
-    - name: Build ${{ matrix.arch }}
+    - name: Build magiskboot for ${{ matrix.arch }}
       run: |
-        export ANDROID_NDK_HOME=$ANDROID_HOME/ndk-bundle
+        export ANDROID_NDK_HOME=${{ steps.setup-ndk.outputs.ndk-path }}
         python build.py -r magiskboot -t ${{ matrix.arch }}
 
-    - name: Upload
+    - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
         name: magiskboot-linux-${{ matrix.arch }}
